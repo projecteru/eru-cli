@@ -25,11 +25,16 @@ class EruClient(object):
         if 'limit' not in params:
             params['limit'] = 20
         target_url = urljoin(self._url, url)
-        resp = session.request(method=method, url=target_url, params=params,
-                data=json.dumps(data), timeout=self._timeout, headers=headers)
-        if as_json:
-            return resp.json()
-        return resp.content
+        try:
+            resp = session.request(method=method, url=target_url, params=params,
+                    data=json.dumps(data), timeout=self._timeout, headers=headers)
+            if as_json:
+                return resp.json()
+            return resp.content
+        except requests.exceptions.ReadTimeout:
+            if as_json:
+                return {'r': 1, 'msg': 'ReadTimeout'}
+            return 'ReadTimeout'
 
     def post(self, url, params=None, data=None, as_json=True):
         return self.request(url, 'POST', params=params, data=data, as_json=as_json)
