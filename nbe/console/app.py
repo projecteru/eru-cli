@@ -14,8 +14,8 @@ def register_app_version(ctx):
     else:
         click.echo(info('Register successfully'))
 
-@click.argument('env', help='environment')
-@click.argument('vs', nargs=-1, help='env variables')
+@click.argument('env')
+@click.argument('vs', nargs=-1)
 @click.pass_context
 def set_app_env(ctx, env, vs):
     kv = {}
@@ -32,7 +32,7 @@ def set_app_env(ctx, env, vs):
     else:
         click.echo(info('env variables set successfully'))
 
-@click.argument('env', help='environment')
+@click.argument('env')
 @click.pass_context
 def list_app_env(ctx, env):
     eru = ctx.obj['eru']
@@ -43,13 +43,14 @@ def list_app_env(ctx, env):
         for key, value in r['data'].iteritems():
             click.echo('{0} = {1}'.format(key, value))
 
-@click.argument('group', help='group name')
-@click.argument('pod', help='pod name')
-@click.argument('entrypoint', help='entrypoint in app.yaml')
+@click.argument('group')
+@click.argument('pod')
+@click.argument('entrypoint')
 @click.option('--env', '-e', default='prod', help='run env')
 @click.option('--ncore', '-c', default=1, help='how many cores per container', type=int)
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
+@click.pass_context
 def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer, version):
     eru = ctx.obj['eru']
     if not version:
@@ -62,17 +63,18 @@ def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer
         # TODO get tasks id
         click.echo(info('Deploy successfully'))
 
-@click.argument('group', help='group name')
-@click.argument('pod', help='pod name')
-@click.argument('entrypoint', help='entrypoint in app.yaml')
+@click.argument('group')
+@click.argument('pod')
+@click.argument('entrypoint')
 @click.option('--env', '-e', default='prod', help='run env')
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
+@click.pass_context
 def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, version):
     eru = ctx.obj['eru']
     if not version:
         version = ctx.obj['short_sha1']
-    r = eru.deploy_private(group, pod, ctx.obj['appname'],
+    r = eru.deploy_public(group, pod, ctx.obj['appname'],
             ncontainer, version, entrypoint, env)
     if r['r']:
         click.echo(error(r['msg']))
@@ -80,10 +82,11 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, versio
         # TODO get tasks id
         click.echo(info('Deploy successfully'))
 
-@click.argument('group', help='group name')
-@click.argument('pod', help='pod name')
-@click.argument('base', help='base image')
+@click.argument('group')
+@click.argument('pod')
+@click.argument('base')
 @click.option('--version', '-v', default=None, help='version to deploy')
+@click.pass_context
 def build_image(ctx, group, pod, base, version):
     eru = ctx.obj['eru']
     if not version:

@@ -7,18 +7,20 @@ import pygit2
 
 from nbe.client import EruClient
 from nbe.console.style import error
-from nbe.console.app import (register_app_version, set_app_env, list_app_env,
-        deploy_private_container, deploy_public_container, build_image)
+from nbe.console.commands import commands
 
 @click.group()
-@click.argument('eru_url', envvar='ERU_URL')
 @click.pass_context
-def nbecommands(ctx, eru_url):
+def nbecommands(ctx):
     if not os.path.exists(os.path.abspath('./.git')):
         click.echo(error('Must run inside git dir'))
         ctx.exit(-1)
     if not os.path.exists(os.path.abspath('./app.yaml')):
         click.echo(error('Need app.yaml in repository'))
+        ctx.exit(-1)
+    eru_url = os.getenv('ERU_URL')
+    if not eru_url:
+        click.echo(error('Need ERU_URL set in env'))
         ctx.exit(-1)
 
     with open(os.path.abspath('./app.yaml')) as f:
@@ -27,8 +29,8 @@ def nbecommands(ctx, eru_url):
         ctx.obj['appname'] = appconfig['appname']
 
     repo = pygit2.Repository('.')
-    ctx.obj['sha1'] = repo.head.target
-    ctx.obj['short_sha1'] = repo.head.target[:7]
+    ctx.obj['sha1'] = str(repo.head.target)
+    ctx.obj['short_sha1'] = ctx.obj['sha1'][:7]
 
     remote = ''
     for r in repo.remotes:
@@ -42,12 +44,8 @@ def nbecommands(ctx, eru_url):
 
     ctx.obj['eru'] = EruClient(eru_url)
 
-nbecommands.command('app:register')(register_app_version)
-nbecommands.command('app:setenv')(set_app_env)
-nbecommands.command('app:listenv')(list_app_env)
-nbecommands.command('app:dpri')(deploy_private_container)
-nbecommands.command('app:dpub')(deploy_public_container)
-nbecommands.command('app:build')(build_image)
+for command, function in commands.iteritems():
+    nbecommands.command(command)(function)
 
 def main():
     nbecommands(obj={})

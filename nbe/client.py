@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import json
 import requests
 from urlparse import urljoin
 
@@ -13,7 +14,7 @@ class EruClient(object):
         self._username = username
         self._password = password
 
-    def request(self, url, method='GET', params=None, data=None, json=True):
+    def request(self, url, method='GET', params=None, data=None, as_json=True):
         headers = {'content-type': 'application/json'}
         if params is None:
             params = {}
@@ -26,21 +27,21 @@ class EruClient(object):
         target_url = urljoin(self._url, url)
         resp = session.request(method=method, url=target_url, params=params,
                 data=json.dumps(data), timeout=self._timeout, headers=headers)
-        if json:
+        if as_json:
             return resp.json()
         return resp.content
 
-    def post(self, url, params=None, data=None, json=True):
-        return self.request(url, 'POST', params=params, data=data, json=json)
+    def post(self, url, params=None, data=None, as_json=True):
+        return self.request(url, 'POST', params=params, data=data, as_json=as_json)
 
-    def put(self, url, params=None, data=None, json=True):
-        return self.request(url, 'PUT', params=params, data=data, json=json)
+    def put(self, url, params=None, data=None, as_json=True):
+        return self.request(url, 'PUT', params=params, data=data, as_json=as_json)
 
-    def get(self, url, params=None, data=None, json=True):
-        return self.request(url, 'GET', params=params, data=data, json=json)
+    def get(self, url, params=None, data=None, as_json=True):
+        return self.request(url, 'GET', params=params, data=data, as_json=as_json)
 
-    def delete(self, url, params=None, data=None, json=True):
-        return self.request(url, 'DELETE', params=params, data=data, json=json)
+    def delete(self, url, params=None, data=None, as_json=True):
+        return self.request(url, 'DELETE', params=params, data=data, as_json=as_json)
 
     def register_app_version(self, name, version, git, token, appyaml):
         url = '/api/app/register/'
@@ -105,7 +106,7 @@ class EruClient(object):
 
     def version(self):
         url = '/'
-        return self.get(url, json=False)
+        return self.get(url, as_json=False)
 
     def kill_container(self, container_id):
         url = '/api/container/{0}/kill'.format(container_id)
@@ -133,7 +134,7 @@ class EruClient(object):
 
     def assign_pod_to_group(self, pod_name, group_name):
         url = '/api/sys/pod/{0}/assign'.format(pod_name)
-        data = {'goupp_name': group_name}
+        data = {'group_name': group_name}
         return self.post(url, data=data)
 
     def create_host(self, addr, pod_name):
