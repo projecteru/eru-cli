@@ -43,6 +43,19 @@ def list_app_env(ctx, env):
         for key, value in r['data'].iteritems():
             click.echo('{0} = {1}'.format(key, value))
 
+@click.pass_context
+def list_app_containers(ctx):
+    eru = ctx.obj['eru']
+    name = ctx.obj['appname']
+    r = eru.list_app_containers(name)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        click.echo('Name'.ljust(20) + 'ContainerName'.ljust(30) + 'CreateTime'.ljust(30) + 'ContainerID'.ljust(20))
+        click.echo('-' * 100)
+        for c in r['containers']:
+            click.echo(name.ljust(20) + c['name'].ljust(30) + c['created'].ljust(30) + c['container_id'][:7].ljust(20))
+
 @click.argument('group')
 @click.argument('pod')
 @click.argument('entrypoint')
@@ -97,4 +110,37 @@ def build_image(ctx, group, pod, base, version):
     else:
         # TODO get tasks id
         click.echo(info('Build successfully'))
+
+@click.argument('group')
+@click.argument('pod')
+@click.argument('host')
+@click.option('--version', '-v', default=None, help='version to deploy')
+@click.option('--ncontainer', '-n', default=1, help='amount of containers')
+@click.pass_context
+def remove_containers(ctx, group, pod, host, version, ncontainer):
+    eru = ctx.obj['eru']
+    if not version:
+        version = ctx.obj['short_sha1']
+    r = eru.remove_containers(group, pod, ctx.obj['appname'],
+            version, host, ncontainer)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        # TODO get tasks id
+        click.echo(info('Remove successfully'))
+
+@click.argument('group')
+@click.argument('pod')
+@click.option('--version', '-v', default=None, help='version to deploy')
+@click.pass_context
+def offline_version(ctx, group, pod, version):
+    eru = ctx.obj['eru']
+    if not version:
+        version = ctx.obj['short_sha1']
+    r = eru.offline_version(group, pod, ctx.obj['appname'], version)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        # TODO get tasks id
+        click.echo(info('Offline successfully'))
 

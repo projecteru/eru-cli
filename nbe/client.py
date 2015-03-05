@@ -78,6 +78,10 @@ class EruClient(object):
         url = '/api/app/{0}/{1}'.format(name, version)
         return self.get(url)
 
+    def list_app_containers(self, name):
+        url = '/api/app/{0}/containers/'.format(name)
+        return self.get(url)
+
     def deploy_private(self, group_name, pod_name, app_name, ncore,
             ncontainer, version, entrypoint, env):
         url = '/api/deploy/private/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
@@ -106,6 +110,20 @@ class EruClient(object):
         data = {
             'base': base,
             'version': version,
+        }
+        return self.post(url, data=data)
+
+    def offline_version(self, group_name, pod_name, app_name, version):
+        url = '/api/deploy/rmversion/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
+        data = {'version': version}
+        return self.post(url, data=data)
+
+    def remove_containers(self, group_name, pod_name, app_name, version, host, ncontainer=1):
+        url = '/api/deploy/rmversion/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
+        data = {
+            'version': version,
+            'host': host,
+            'ncontainer': ncontainer,
         }
         return self.post(url, data=data)
 
