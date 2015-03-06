@@ -65,10 +65,14 @@ class EruClient(object):
         data.update(kv)
         return self.put(url, data=data)
 
-    def list_app_env(self, name, env):
+    def list_app_env_content(self, name, env):
         url = '/api/app/{0}/env/'.format(name)
         params = {'env': env}
         return self.get(url, params=params)
+
+    def list_app_env_names(self, name):
+        url = '/api/app/{0}/listenv'.format(name)
+        return self.get(url)
 
     def get_app(self, name):
         url = '/api/app/{0}'.format(name)

@@ -3,6 +3,7 @@
 import click
 
 from nbe.console.style import error, info
+from nbe.console.output import as_form
 
 @click.pass_context
 def register_app_version(ctx):
@@ -34,14 +35,16 @@ def set_app_env(ctx, env, vs):
 
 @click.argument('env')
 @click.pass_context
-def list_app_env(ctx, env):
+def list_app_env_content(ctx, env):
     eru = ctx.obj['eru']
-    r = eru.list_app_env(ctx.obj['appname'], env)
+    r = eru.list_app_env_content(ctx.obj['appname'], env)
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        for key, value in r['data'].iteritems():
-            click.echo('{0} = {1}'.format(key, value))
+        title = ['Key', 'Value']
+        data = r['data']
+        content = [(key, data.get(key, '')) for key in sorted(data.keys())]
+        as_form(title, content, 20)
 
 @click.pass_context
 def list_app_containers(ctx):
@@ -51,10 +54,21 @@ def list_app_containers(ctx):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        click.echo('Name'.ljust(20) + 'ContainerName'.ljust(30) + 'CreateTime'.ljust(30) + 'ContainerID'.ljust(20))
-        click.echo('-' * 100)
-        for c in r['containers']:
-            click.echo(name.ljust(20) + c['name'].ljust(30) + c['created'].ljust(30) + c['container_id'][:7].ljust(20))
+        title = ['Name', 'ContainerName', 'CreateTime', 'ContainerID']
+        content = [[name, c['name'], c['created'], c['container_id']] for c in r['containers']]
+        as_form(title, content, 30)
+
+@click.pass_context
+def list_app_env_names(ctx):
+    eru = ctx.obj['eru']
+    name = ctx.obj['appname']
+    r = eru.list_app_env_names(name)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        title = ['Env', ]
+        content = [[e, ] for e in r['data']]
+        as_form(title, content, 10)
 
 @click.argument('group')
 @click.argument('pod')
