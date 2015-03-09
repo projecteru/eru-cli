@@ -18,5 +18,7 @@ setup(
         'click>=2.0',
         'requests>=2.2.1',
         'PyYAML',
+        'pygit2',
+        'websocket',
     ],
 )
