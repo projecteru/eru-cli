@@ -1,7 +1,9 @@
 # coding: utf-8
 
 import json
+import socket
 import requests
+import websocket
 from urlparse import urljoin
 
 session = requests.Session()
@@ -35,6 +37,20 @@ class EruClient(object):
             if as_json:
                 return {'r': 1, 'msg': 'ReadTimeout'}
             return 'ReadTimeout'
+
+    def request_websocket(self, url, as_json=True):
+        ws_url = urljoin(self._url, url).replace('http://', 'ws://').replace('https://', 'wss://')
+        ws = websocket.create_connection(ws_url)
+        while True:
+            try:
+                line = ws.recv()
+                if not line:
+                    continue
+                if as_json:
+                    line = json.loads(line)
+                yield line
+            except (websocket.WebSocketException, socket.error):
+                break
 
     def post(self, url, params=None, data=None, as_json=True):
         return self.request(url, 'POST', params=params, data=data, as_json=as_json)
@@ -116,6 +132,10 @@ class EruClient(object):
             'version': version,
         }
         return self.post(url, data=data)
+
+    def build_log(self, task_id):
+        url = '/websockets/tasklog/{0}/'.format(task_id)
+        return self.request_websocket(url)
 
     def offline_version(self, group_name, pod_name, app_name, version):
         url = '/api/deploy/rmversion/{0}/{1}/{2}'.format(group_name, pod_name, app_name)

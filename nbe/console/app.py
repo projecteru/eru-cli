@@ -122,8 +122,31 @@ def build_image(ctx, group, pod, base, version):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        # TODO get tasks id
-        click.echo(info('Build successfully'))
+        for d in eru.build_log(r['task']):
+            if 'stream' in d:
+                click.echo(d['stream'], nl=False)
+            elif 'status' in d:
+                status = d['status']
+                progress = d.get('progress', '')
+                if progress:
+                    click.echo('%s, %s\r' % (status, progress), nl=False)
+                else:
+                    click.echo(status)
+
+@click.argument('task')
+@click.pass_context
+def build_log(ctx, task):
+    eru = ctx.obj['eru']
+    for d in eru.build_log(task):
+        if 'stream' in d:
+            click.echo(d['stream'], nl=False)
+        elif 'status' in d:
+            status = d['status']
+            progress = d.get('progress', '')
+            if progress:
+                click.echo('%s, %s\r' % (status, progress), nl=False)
+            else:
+                click.echo(status)
 
 @click.argument('group')
 @click.argument('pod')
