@@ -2,7 +2,7 @@
 
 import click
 
-from nbe.console.style import info
+from erucli.console.style import info
 
 def as_form(title, content, width):
     click.echo(info(''.join(t.ljust(width) for t in title)))

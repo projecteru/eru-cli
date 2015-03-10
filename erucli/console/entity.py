@@ -2,7 +2,7 @@
 
 import click
 
-from nbe.console.style import error, info
+from erucli.console.style import error, info
 
 @click.argument('name')
 @click.argument('description', default='')

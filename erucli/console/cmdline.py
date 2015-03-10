@@ -5,13 +5,13 @@ import click
 import yaml
 import pygit2
 
-from nbe.client import EruClient
-from nbe.console.style import error
-from nbe.console.commands import commands
+from erucli.client import EruClient
+from erucli.console.style import error
+from erucli.console.commands import commands
 
 @click.group()
 @click.pass_context
-def nbecommands(ctx):
+def eru_commands(ctx):
     if not os.path.exists(os.path.abspath('./.git')):
         click.echo(error('Must run inside git dir'))
         ctx.exit(-1)
@@ -45,8 +45,8 @@ def nbecommands(ctx):
     ctx.obj['eru'] = EruClient(eru_url)
 
 for command, function in commands.iteritems():
-    nbecommands.command(command)(function)
+    eru_commands.command(command)(function)
 
 def main():
-    nbecommands(obj={})
+    eru_commands(obj={})
 

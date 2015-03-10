@@ -2,8 +2,8 @@
 
 import click
 
-from nbe.console.style import error, info
-from nbe.console.output import as_form
+from erucli.console.style import error, info
+from erucli.console.output import as_form
 
 @click.pass_context
 def register_app_version(ctx):

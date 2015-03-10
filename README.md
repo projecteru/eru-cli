@@ -1,4 +1,5 @@
-command line tool
+Eru Cli
 =================
 
-please just ignore this ... 
+Command tool for Project Eru
+
