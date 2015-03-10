@@ -12,7 +12,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     entry_points={
-        'console_scripts':['eru-cli=erucli.console.cmdline:main'],
+        'console_scripts':[
+            'eru-cli=erucli.console.cmdline:main',
+            'nbe=erucli.console.cmdline:main',
+        ],
     },
     install_requires=[
         'click>=2.0',
