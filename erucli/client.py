@@ -46,7 +46,6 @@ class EruClient(object):
             params = {}
         query = urllib.urlencode(params)
         ws_url = urlparse.urlparse(ws_url)._replace(query=query).geturl()
-        print ws_url
         ws = websocket.create_connection(ws_url)
         while True:
             try:

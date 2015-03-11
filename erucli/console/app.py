@@ -155,6 +155,9 @@ def build_log(ctx, task):
 @click.pass_context
 def container_log(ctx, container_id, stdout, stderr, tail):
     eru = ctx.obj['eru']
+    if not stdout and not stderr:
+        click.echo(error('Set at least one in --stdout/--stderr'))
+        ctx.exit(-1)
     for line in eru.container_log(container_id, int(stdout), int(stderr), tail):
         click.echo(line, nl=False)
 
