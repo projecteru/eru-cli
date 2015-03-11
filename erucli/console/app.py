@@ -44,7 +44,7 @@ def list_app_env_content(ctx, env):
         title = ['Key', 'Value']
         data = r['data']
         content = [(key, data.get(key, '')) for key in sorted(data.keys())]
-        as_form(title, content, 20)
+        as_form(title, content)
 
 @click.pass_context
 def list_app_containers(ctx):
@@ -54,9 +54,9 @@ def list_app_containers(ctx):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        title = ['Name', 'ContainerName', 'CreateTime', 'ContainerID']
-        content = [[name, c['name'], c['created'], c['container_id']] for c in r['containers']]
-        as_form(title, content, 30)
+        title = ['Name', 'ContainerName', 'CreateTime', 'Alive', 'ContainerID']
+        content = [[name, c['name'], c['created'], 'yes' if c['is_alive'] else 'no', c['container_id']] for c in r['containers']]
+        as_form(title, content)
 
 @click.pass_context
 def list_app_env_names(ctx):
@@ -68,7 +68,7 @@ def list_app_env_names(ctx):
     else:
         title = ['Env', ]
         content = [[e, ] for e in r['data']]
-        as_form(title, content, 10)
+        as_form(title, content)
 
 @click.argument('group')
 @click.argument('pod')

@@ -23,5 +23,6 @@ setup(
         'PyYAML',
         'pygit2',
         'websocket-client',
+        'tabulate',
     ],
 )
