@@ -148,6 +148,16 @@ def build_log(ctx, task):
             else:
                 click.echo(status)
 
+@click.argument('container_id')
+@click.option('--stdout', '-o', is_flag=True)
+@click.option('--stderr', '-e', is_flag=True)
+@click.option('--tail', '-t', default=10)
+@click.pass_context
+def container_log(ctx, container_id, stdout, stderr, tail):
+    eru = ctx.obj['eru']
+    for line in eru.container_log(container_id, int(stdout), int(stderr), tail):
+        click.echo(line, nl=False)
+
 @click.argument('group')
 @click.argument('pod')
 @click.argument('host')
