@@ -6,7 +6,11 @@ from tabulate import tabulate
 from erucli.console.style import info
 
 def as_form(title, content):
+    empty = not bool(content)
+    if empty:
+        content = [['' for _ in title]]
     header, contents = tabulate(content, headers=title).split('-\n', 1) # tricky
     click.echo(info(header + '-'))
-    click.echo(contents)
+    if not empty:
+        click.echo(contents)
 
