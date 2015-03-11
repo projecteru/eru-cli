@@ -4,6 +4,8 @@ import json
 import socket
 import requests
 import websocket
+import urllib
+import urlparse
 from urlparse import urljoin
 
 session = requests.Session()
@@ -38,8 +40,12 @@ class EruClient(object):
                 return {'r': 1, 'msg': 'ReadTimeout'}
             return 'ReadTimeout'
 
-    def request_websocket(self, url, as_json=True):
+    def request_websocket(self, url, as_json=True, params=None):
         ws_url = urljoin(self._url, url).replace('http://', 'ws://').replace('https://', 'wss://')
+        if params is None:
+            params = {}
+        query = urllib.urlencode(params)
+        ws_url = urlparse.urlparse(ws_url)._replace(query=query).geturl()
         ws = websocket.create_connection(ws_url)
         while True:
             try:
@@ -136,6 +142,15 @@ class EruClient(object):
     def build_log(self, task_id):
         url = '/websockets/tasklog/{0}/'.format(task_id)
         return self.request_websocket(url)
+
+    def container_log(self, container_id, stdout=0, stderr=0, tail=0):
+        url = '/websockets/containerlog/{0}/'.format(container_id)
+        params = {
+            'stdout': stdout,
+            'stderr': stderr,
+            'tail': tail,
+        }
+        return self.request_websocket(url, as_json=False, params=params)
 
     def offline_version(self, group_name, pod_name, app_name, version):
         url = '/api/deploy/rmversion/{0}/{1}/{2}'.format(group_name, pod_name, app_name)

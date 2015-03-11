@@ -22,6 +22,7 @@ setup(
         'requests>=2.2.1',
         'PyYAML',
         'pygit2',
-        'websocket',
+        'websocket-client',
+        'tabulate',
     ],
 )

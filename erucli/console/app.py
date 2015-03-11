@@ -44,7 +44,7 @@ def list_app_env_content(ctx, env):
         title = ['Key', 'Value']
         data = r['data']
         content = [(key, data.get(key, '')) for key in sorted(data.keys())]
-        as_form(title, content, 20)
+        as_form(title, content)
 
 @click.pass_context
 def list_app_containers(ctx):
@@ -54,9 +54,9 @@ def list_app_containers(ctx):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        title = ['Name', 'ContainerName', 'CreateTime', 'ContainerID']
-        content = [[name, c['name'], c['created'], c['container_id']] for c in r['containers']]
-        as_form(title, content, 30)
+        title = ['Name', 'ContainerName', 'CreateTime', 'Alive', 'ContainerID']
+        content = [[name, c['name'], c['created'], 'yes' if c['is_alive'] else 'no', c['container_id']] for c in r['containers']]
+        as_form(title, content)
 
 @click.pass_context
 def list_app_env_names(ctx):
@@ -68,7 +68,7 @@ def list_app_env_names(ctx):
     else:
         title = ['Env', ]
         content = [[e, ] for e in r['data']]
-        as_form(title, content, 10)
+        as_form(title, content)
 
 @click.argument('group')
 @click.argument('pod')
@@ -147,6 +147,19 @@ def build_log(ctx, task):
                 click.echo('%s, %s\r' % (status, progress), nl=False)
             else:
                 click.echo(status)
+
+@click.argument('container_id')
+@click.option('--stdout', '-o', is_flag=True)
+@click.option('--stderr', '-e', is_flag=True)
+@click.option('--tail', '-t', default=10)
+@click.pass_context
+def container_log(ctx, container_id, stdout, stderr, tail):
+    eru = ctx.obj['eru']
+    if not stdout and not stderr:
+        click.echo(error('Set at least one in --stdout/--stderr'))
+        ctx.exit(-1)
+    for line in eru.container_log(container_id, int(stdout), int(stderr), tail):
+        click.echo(line, nl=False)
 
 @click.argument('group')
 @click.argument('pod')
