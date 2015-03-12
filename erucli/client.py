@@ -217,7 +217,14 @@ class EruClient(object):
         params = {'pod_name': pod_name, 'ncore': ncore}
         return self.get(url, params=params)
 
-    def alloc_resource(self, res_name):
-        url = '/api/sys/alloc/{0}'.format(res_name)
-        return self.post(url)
+    def alloc_resource(self, appname, env, res_name, res_alias):
+        url = '/api/app/alloc/{0}/{1}/{2}/{3}/'.format(
+            appname, env, res_name, res_alias,
+        )
+        data = {
+            'dbname': appname,
+            'username': appname,
+            'pass_len': 8,
+        }
+        return self.post(url, data=data)
 

@@ -9,7 +9,7 @@ from erucli.console.output import as_form
 def register_app_version(ctx):
     eru = ctx.obj['eru']
     r = eru.register_app_version(ctx.obj['appname'], ctx.obj['sha1'],
-            ctx.obj['remote'], '', ctx.obj['appconfig'])
+            ctx.obj['remote'], ctx.obj['appname'], ctx.obj['appconfig'])
     if r['r']:
         click.echo(error(r['msg']))
     else:
@@ -54,8 +54,12 @@ def list_app_containers(ctx):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        title = ['Name', 'ContainerName', 'CreateTime', 'Alive', 'ContainerID']
-        content = [[name, c['name'], c['created'], 'yes' if c['is_alive'] else 'no', c['container_id']] for c in r['containers']]
+        title = ['Name', 'Time', 'Entry', 'Version', 'Alive', 'Host', 'Ports', 'ID']
+        content = [[c['name'], c['created'],
+            c['entrypoint'], c['version'],
+            'yes' if c['is_alive'] else 'no', 
+            c['host'], ','.join(str(p) for p in c['ports']),
+            c['container_id'][:7]] for c in r['containers']]
         as_form(title, content)
 
 @click.pass_context
@@ -69,6 +73,24 @@ def list_app_env_names(ctx):
         title = ['Env', ]
         content = [[e, ] for e in r['data']]
         as_form(title, content)
+
+@click.argument('env')
+@click.argument('res_name')
+@click.option('--name', '-n', default='')
+@click.pass_context
+def alloc_resource(ctx, env, res_name, name):
+    if name == '':
+        name = res_name
+    if res_name not in ('influxdb', 'mysql'):
+        click.echo(error('Res name must be influxdb/mysql'))
+        ctx.exit(-1)
+    eru = ctx.obj['eru']
+    r = eru.alloc_resource(ctx.obj['appname'], env, res_name, name)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        # TODO get tasks id
+        click.echo(info('Alloc successfully'))
 
 @click.argument('group')
 @click.argument('pod')
