@@ -37,8 +37,12 @@ class EruClient(object):
             return resp.content
         except requests.exceptions.ReadTimeout:
             if as_json:
-                return {'r': 1, 'msg': 'ReadTimeout'}
-            return 'ReadTimeout'
+                return {'r': 1, 'msg': 'Read timeout'}
+            return 'Read timeout'
+        except requests.exceptions.ConnectionError:
+            if as_json:
+                return {'r': 1, 'msg': 'Connection refused'}
+            return 'Connection refused'
 
     def request_websocket(self, url, as_json=True, params=None):
         ws_url = urljoin(self._url, url).replace('http://', 'ws://').replace('https://', 'wss://')
