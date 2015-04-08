@@ -216,3 +216,18 @@ def offline_version(ctx, group, pod, version):
         # TODO get tasks id
         click.echo(info('Offline successfully'))
 
+@click.argument('group')
+@click.argument('pod')
+@click.option('--version', '-v', default=None, help='version to deploy')
+@click.pass_context
+def update_version(ctx, group, pod, version):
+    eru = ctx.obj['eru']
+    if not version:
+        version = ctx.obj['short_sha1']
+    r = eru.update_version(group, pod, ctx.obj['appname'], version)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        # TODO get tasks id
+        click.echo(info('Update successfully'))
+

@@ -170,6 +170,11 @@ class EruClient(object):
         }
         return self.post(url, data=data)
 
+    def update_version(self, group_name, pod_name, app_name, version):
+        url = '/api/deploy/updateversion/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
+        data = {'version': version}
+        return self.put(url, data=data)
+
     def version(self):
         url = '/'
         return self.get(url, as_json=False)
