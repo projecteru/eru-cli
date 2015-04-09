@@ -18,7 +18,7 @@ commands = {
     'app:listcontainer': list_app_containers,
     'app:rmcontainer': remove_containers,
     'app:offline': offline_version,
-    'app:update': update_version,
+    'app:upgrade': update_version,
     'app:allocresource': alloc_resource,
 
     'group:create': create_group,
