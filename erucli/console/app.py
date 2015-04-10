@@ -151,7 +151,7 @@ def build_image(ctx, group, pod, base, version):
                 status = d['status']
                 progress = d.get('progress', '')
                 if progress:
-                    click.echo('%s, %s\r' % (status, progress), nl=False)
+                    click.echo('%s, %s      \r' % (status, progress), nl=False)
                 else:
                     click.echo(status)
 
@@ -166,7 +166,7 @@ def build_log(ctx, task):
             status = d['status']
             progress = d.get('progress', '')
             if progress:
-                click.echo('%s, %s\r' % (status, progress), nl=False)
+                click.echo('%s, %s      \r' % (status, progress), nl=False)
             else:
                 click.echo(status)
 
