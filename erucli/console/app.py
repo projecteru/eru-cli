@@ -99,13 +99,23 @@ def alloc_resource(ctx, env, res_name, name):
 @click.option('--ncore', '-c', default=1, help='how many cores per container', type=int)
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
+@click.option('--network', '-i', help='version to deploy', multiple=True)
 @click.pass_context
-def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer, version):
+def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer, version, network):
     eru = ctx.obj['eru']
+
+    network_ids = []
+    for nname in network:
+        n = eru.get_network_by_name(nname)
+        if 'r' in n and n['r'] == 1:
+            click.echo(error(n['msg']))
+            ctx.exit(-1)
+        network_ids.append(n['id'])
+
     if not version:
         version = ctx.obj['short_sha1']
     r = eru.deploy_private(group, pod, ctx.obj['appname'], ncore,
-            ncontainer, version, entrypoint, env)
+            ncontainer, version, entrypoint, env, network_ids)
     if r['r']:
         click.echo(error(r['msg']))
     else:
@@ -118,13 +128,23 @@ def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer
 @click.option('--env', '-e', default='prod', help='run env')
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
+@click.option('--network', '-i', help='version to deploy', multiple=True)
 @click.pass_context
-def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, version):
+def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, version, network):
     eru = ctx.obj['eru']
+
+    network_ids = []
+    for nname in network:
+        n = eru.get_network_by_name(nname)
+        if 'r' in n and n['r'] == 1:
+            click.echo(error(n['msg']))
+            ctx.exit(-1)
+        network_ids.append(n['id'])
+
     if not version:
         version = ctx.obj['short_sha1']
     r = eru.deploy_public(group, pod, ctx.obj['appname'],
-            ncontainer, version, entrypoint, env)
+            ncontainer, version, entrypoint, env, network_ids)
     if r['r']:
         click.echo(error(r['msg']))
     else:

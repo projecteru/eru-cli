@@ -113,7 +113,7 @@ class EruClient(object):
         return self.get(url)
 
     def deploy_private(self, group_name, pod_name, app_name, ncore,
-            ncontainer, version, entrypoint, env):
+            ncontainer, version, entrypoint, env, network_ids):
         url = '/api/deploy/private/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
         data = {
             'ncore': ncore,
@@ -121,17 +121,19 @@ class EruClient(object):
             'version': version,
             'entrypoint': entrypoint,
             'env': env,
+            'networks': network_ids,
         }
         return self.post(url, data=data)
 
     def deploy_public(self, group_name, pod_name, app_name, ncontainer,
-            version, entrypoint, env):
+            version, entrypoint, env, network_ids):
         url = '/api/deploy/public/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
         data = {
             'ncontainer': ncontainer,
             'version': version,
             'entrypoint': entrypoint,
             'env': env,
+            'networks': network_ids,
         }
         return self.post(url, data=data)
 
@@ -237,3 +239,18 @@ class EruClient(object):
         }
         return self.post(url, data=data)
 
+    def create_network(self, name, netspace):
+        url = '/api/network/create/'
+        data = {
+            'name': name,
+            'netspace': netspace,
+        }
+        return self.post(url, data=data)
+
+    def list_network(self, start=0, limit=20):
+        url = '/api/network/list/'
+        return self.get(url)
+
+    def get_network_by_name(self, network_name):
+        url = '/api/network/{0}/'.format(network_name)
+        return self.get(url)
