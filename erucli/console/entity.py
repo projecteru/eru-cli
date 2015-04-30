@@ -26,6 +26,17 @@ def create_pod(ctx, name, description):
     else:
         click.echo(info('Pod created successfully'))
 
+@click.argument('name')
+@click.argument('netspace')
+@click.pass_context
+def create_network(ctx, name, netspace):
+    eru = ctx.obj['eru']
+    r = eru.create_network(name, netspace)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        click.echo(info('Network created successfully'))
+
 @click.argument('pod_name')
 @click.argument('group_name')
 @click.pass_context
