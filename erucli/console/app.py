@@ -54,12 +54,11 @@ def list_app_containers(ctx):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        title = ['Name', 'Time', 'Entry', 'Version', 'Alive', 'Host', 'Ports', 'ID']
+        title = ['Name', 'Time', 'Entry', 'Version', 'Alive', 'Host', 'ID']
         content = [[c['name'], c['created'],
             c['entrypoint'], c['version'],
             'yes' if c['is_alive'] else 'no', 
-            c['host'], ','.join(str(p) for p in c['ports']),
-            c['container_id'][:7]] for c in r['containers']]
+            c['host'], c['container_id'][:7]] for c in r['containers']]
         as_form(title, content)
 
 @click.pass_context
