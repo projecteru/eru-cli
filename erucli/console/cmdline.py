@@ -29,7 +29,7 @@ def eru_commands(ctx):
         ctx.obj['appname'] = appconfig['appname']
 
     repo = pygit2.Repository('.')
-    ctx.obj['sha1'] = str(repo.head.target)
+    ctx.obj['sha1'] = repo.head.target.hex
     ctx.obj['short_sha1'] = ctx.obj['sha1'][:7]
 
     remote = ''
