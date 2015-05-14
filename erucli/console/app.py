@@ -202,22 +202,14 @@ def container_log(ctx, container_id, stdout, stderr, tail):
     for line in eru.container_log(container_id, int(stdout), int(stderr), tail):
         click.echo(line, nl=False)
 
-@click.argument('group')
-@click.argument('pod')
-@click.argument('host')
-@click.option('--version', '-v', default=None, help='version to deploy')
-@click.option('--ncontainer', '-n', default=1, help='amount of containers')
+@click.argument('container_ids', nargs=-1)
 @click.pass_context
-def remove_containers(ctx, group, pod, host, version, ncontainer):
+def remove_containers(ctx, container_ids):
     eru = ctx.obj['eru']
-    if not version:
-        version = ctx.obj['short_sha1']
-    r = eru.remove_containers(group, pod, ctx.obj['appname'],
-            version, host, ncontainer)
+    r = eru.remove_containers(container_ids)
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        # TODO get tasks id
         click.echo(info('Remove successfully'))
 
 @click.argument('group')

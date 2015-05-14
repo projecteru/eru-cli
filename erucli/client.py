@@ -163,13 +163,9 @@ class EruClient(object):
         data = {'version': version}
         return self.post(url, data=data)
 
-    def remove_containers(self, group_name, pod_name, app_name, version, host, ncontainer=1):
-        url = '/api/deploy/rmcontainer/{0}/{1}/{2}'.format(group_name, pod_name, app_name)
-        data = {
-            'version': version,
-            'host': host,
-            'ncontainer': ncontainer,
-        }
+    def remove_containers(self, container_ids):
+        url = '/api/deploy/rmcontainer/'
+        data = {'cids': container_ids}
         return self.post(url, data=data)
 
     def update_version(self, group_name, pod_name, app_name, version):
