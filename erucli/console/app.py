@@ -95,7 +95,7 @@ def alloc_resource(ctx, env, res_name, name):
 @click.argument('pod')
 @click.argument('entrypoint')
 @click.option('--env', '-e', default='prod', help='run env')
-@click.option('--ncore', '-c', default=1, help='how many cores per container', type=int)
+@click.option('--ncore', '-c', default=1, help='how many cores per container', type=float)
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
 @click.option('--network', '-i', help='version to deploy', multiple=True)
