@@ -164,7 +164,7 @@ class EruClient(object):
         return self.post(url, data=data)
 
     def remove_containers(self, container_ids):
-        url = '/api/deploy/rmcontainer/'
+        url = '/api/deploy/rmcontainers/'
         data = {'cids': container_ids}
         return self.post(url, data=data)
 
