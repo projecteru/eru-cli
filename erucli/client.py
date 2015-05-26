@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import json
 import socket
 import requests
@@ -8,15 +6,14 @@ import urllib
 import urlparse
 from urlparse import urljoin
 
-session = requests.Session()
 
 class EruClient(object):
-
     def __init__(self, url, timeout=5, username='', password=''):
-        self._url = url
-        self._timeout = timeout
-        self._username = username
-        self._password = password
+        self.url = url
+        self.timeout = timeout
+        self.username = username
+        self.password = password
+        self.session = requests.Session()
 
     def request(self, url, method='GET', params=None, data=None, as_json=True):
         headers = {'content-type': 'application/json'}
@@ -28,10 +25,11 @@ class EruClient(object):
             params['start'] = 0
         if 'limit' not in params:
             params['limit'] = 20
-        target_url = urljoin(self._url, url)
+        target_url = urljoin(self.url, url)
         try:
-            resp = session.request(method=method, url=target_url, params=params,
-                    data=json.dumps(data), timeout=self._timeout, headers=headers)
+            resp = self.session.request(
+                method=method, url=target_url, params=params,
+                data=json.dumps(data), timeout=self.timeout, headers=headers)
             if as_json:
                 return resp.json()
             return resp.content
@@ -45,7 +43,8 @@ class EruClient(object):
             return 'Connection refused'
 
     def request_websocket(self, url, as_json=True, params=None):
-        ws_url = urljoin(self._url, url).replace('http://', 'ws://').replace('https://', 'wss://')
+        ws_url = urljoin(self.url, url).replace(
+            'http://', 'ws://').replace('https://', 'wss://')
         if params is None:
             params = {}
         query = urllib.urlencode(params)
@@ -250,3 +249,9 @@ class EruClient(object):
     def get_network_by_name(self, network_name):
         url = '/api/network/{0}/'.format(network_name)
         return self.get(url)
+
+    def get_versions(self, app):
+        return self.get('/api/app/%s/versions/' % app)
+
+    def list_pods(self):
+        return self.get('/api/pod/list/')

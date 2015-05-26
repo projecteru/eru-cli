@@ -1,3 +1,5 @@
 *.py[co]
 tests/__pycache__/*
 erucli.egg-info/*
+build/*
+dist/*
