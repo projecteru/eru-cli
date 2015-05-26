@@ -99,8 +99,10 @@ def alloc_resource(ctx, env, res_name, name):
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
 @click.option('--network', '-i', help='version to deploy', multiple=True)
+@click.option('--host', '-h', help='specific host name', default=None, type=str)
 @click.pass_context
-def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer, version, network):
+def deploy_private_container(ctx, group, pod, entrypoint,
+        env, ncore, ncontainer, version, network, host):
     eru = ctx.obj['eru']
 
     network_ids = []
@@ -114,7 +116,7 @@ def deploy_private_container(ctx, group, pod, entrypoint, env, ncore, ncontainer
     if not version:
         version = ctx.obj['short_sha1']
     r = eru.deploy_private(group, pod, ctx.obj['appname'], ncore,
-            ncontainer, version, entrypoint, env, network_ids)
+            ncontainer, version, entrypoint, env, network_ids, host)
     if r['r']:
         click.echo(error(r['msg']))
     else:
