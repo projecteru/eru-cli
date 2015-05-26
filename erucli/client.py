@@ -124,6 +124,21 @@ class EruClient(object):
         }
         return self.post(url, data=data)
 
+    def deploy_private_on_spec_host(self, host_name, app_name, ncore,
+            ncontainer, version, entrypoint, env, network_ids):
+        url = '/api/deploy/onhost/'
+        data = {
+            'ncore': ncore,
+            'ncontainer': ncontainer,
+            'version': version,
+            'entrypoint': entrypoint,
+            'env': env,
+            'appname': app_name,
+            'hostname': host_name,
+            'networks': network_ids,
+        }
+        return self.post(url, data=data)
+
     def deploy_public(self, group_name, pod_name, app_name, ncontainer,
             version, entrypoint, env, network_ids):
         url = '/api/deploy/public/{0}/{1}/{2}'.format(group_name, pod_name, app_name)

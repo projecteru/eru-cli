@@ -150,6 +150,35 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, versio
         # TODO get tasks id
         click.echo(info('Deploy successfully'))
 
+@click.argument('host')
+@click.argument('entrypoint')
+@click.option('--env', '-e', default='prod', help='run env')
+@click.option('--ncore', '-c', default=1, help='how many cores per container', type=float)
+@click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
+@click.option('--version', '-v', default=None, help='version to deploy')
+@click.option('--network', '-i', help='version to deploy', multiple=True)
+@click.pass_context
+def deploy_private_on_spec_host(ctx, host, entrypoint, env, ncore, ncontainer, version, network):
+    eru = ctx.obj['eru']
+
+    network_ids = []
+    for nname in network:
+        n = eru.get_network_by_name(nname)
+        if 'r' in n and n['r'] == 1:
+            click.echo(error(n['msg']))
+            ctx.exit(-1)
+        network_ids.append(n['id'])
+
+    if not version:
+        version = ctx.obj['short_sha1']
+    r = eru.deploy_private_on_spec_host(host, ctx.obj['appname'],
+            ncore, ncontainer, version, entrypoint, env, network_ids)
+    if r['r']:
+        click.echo(error(r['msg']))
+    else:
+        # TODO get tasks id
+        click.echo(info('Deploy successfully'))
+
 @click.argument('group')
 @click.argument('pod')
 @click.argument('base')
