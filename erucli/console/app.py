@@ -107,7 +107,7 @@ def deploy_private_container(ctx, group, pod, entrypoint,
 
     network_ids = []
     for nname in network:
-        n = eru.get_network_by_name(nname)
+        n = eru.get_network(nname)
         if 'r' in n and n['r'] == 1:
             click.echo(error(n['msg']))
             ctx.exit(-1)
@@ -136,7 +136,7 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, versio
 
     network_ids = []
     for nname in network:
-        n = eru.get_network_by_name(nname)
+        n = eru.get_network(nname)
         if 'r' in n and n['r'] == 1:
             click.echo(error(n['msg']))
             ctx.exit(-1)
