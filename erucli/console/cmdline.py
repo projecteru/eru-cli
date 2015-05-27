@@ -5,7 +5,7 @@ import click
 import yaml
 import pygit2
 
-from erucli.client import EruClient
+from eruhttp import EruClient
 from erucli.console.style import error
 from erucli.console.commands import commands
 
