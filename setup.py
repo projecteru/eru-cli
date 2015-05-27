@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='erucli',
-    version='0.1.3',
+    version='0.1.4',
     author='tonic',
     zip_safe=False,
     author_email='tonic@wolege.ca',
@@ -24,5 +24,6 @@ setup(
         'pygit2',
         'websocket-client',
         'tabulate',
+        'eru-py',
     ],
 )
