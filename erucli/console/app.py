@@ -1,6 +1,8 @@
 # coding: utf-8
 
 import click
+import humanize
+from datetime import datetime
 
 from erucli.console.style import error, info
 from erucli.console.output import as_form
@@ -54,11 +56,18 @@ def list_app_containers(ctx):
     if r['r']:
         click.echo(error(r['msg']))
     else:
-        title = ['Name', 'Time', 'Entry', 'Version', 'Alive', 'Host', 'ID']
-        content = [[c['name'], c['created'],
-            c['entrypoint'], c['version'],
-            'yes' if c['is_alive'] else 'no', 
-            c['host'], c['container_id'][:7]] for c in r['containers']]
+        title = ['Name', 'Time', 'Entry', 'Version', 'Alive', 'Host', 'Backends', 'ID']
+        content = [
+            [
+                c['name'],
+                humanize.naturaltime(datetime.strptime(c['created'], '%Y-%m-%d %H:%M:%S')),
+                c['entrypoint'],
+                c['version'],
+                'yes' if c['is_alive'] else 'no', 
+                c['host'],
+                ','.join(n['address'] for n in c['networks']) or '-',
+                c['container_id'][:7]
+            ] for c in r['containers']]
         as_form(title, content)
 
 @click.pass_context

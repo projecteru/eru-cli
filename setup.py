@@ -25,5 +25,6 @@ setup(
         'websocket-client',
         'tabulate',
         'eru-py',
+        'humanize',
     ],
 )
