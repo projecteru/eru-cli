@@ -135,7 +135,13 @@ def deploy_private_container(ctx, group, pod, entrypoint,
     count = 1
     task_status = {i: 0 for i in r['tasks']}
     while not all(s != 0 for s in task_status.values()):
-        click.echo('o' * count + '\r', nl=False)
+        if count < 10:
+            click.echo('o' * count + '\r', nl=False)
+        elif count % 2:
+            click.echo('o' * 10 + 'o\r', nl=False)
+        else:
+            click.echo('o' * 10 + 'x\r', nl=False)
+
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
@@ -184,7 +190,12 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, versio
     count = 1
     task_status = {i: 0 for i in r['tasks']}
     while not all(s != 0 for s in task_status.values()):
-        click.echo('o' * count + '\r', nl=False)
+        if count < 10:
+            click.echo('o' * count + '\r', nl=False)
+        elif count % 2:
+            click.echo('o' * 10 + 'o\r', nl=False)
+        else:
+            click.echo('o' * 10 + 'x\r', nl=False)
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
@@ -266,7 +277,12 @@ def remove_containers(ctx, container_ids):
     count = 1
     task_status = {i: 0 for i in r['tasks']}
     while not all(s != 0 for s in task_status.values()):
-        click.echo('o' * count + '\r', nl=False)
+        if count < 10:
+            click.echo('o' * count + '\r', nl=False)
+        elif count % 2:
+            click.echo('o' * 10 + 'o\r', nl=False)
+        else:
+            click.echo('o' * 10 + 'x\r', nl=False)
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
@@ -300,7 +316,12 @@ def offline_version(ctx, group, pod, version):
     count = 1
     task_status = {i: 0 for i in r['tasks']}
     while not all(s != 0 for s in task_status.values()):
-        click.echo('o' * count + '\r', nl=False)
+        if count < 10:
+            click.echo('o' * count + '\r', nl=False)
+        elif count % 2:
+            click.echo('o' * 10 + 'o\r', nl=False)
+        else:
+            click.echo('o' * 10 + 'x\r', nl=False)
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
