@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import time
 import click
 import humanize
 from datetime import datetime
@@ -126,11 +127,30 @@ def deploy_private_container(ctx, group, pod, entrypoint,
         version = ctx.obj['short_sha1']
     r = eru.deploy_private(group, pod, ctx.obj['appname'], ncore,
             ncontainer, version, entrypoint, env, network_ids, host)
+
     if r['r']:
         click.echo(error(r['msg']))
-    else:
-        # TODO get tasks id
-        click.echo(info('Deploy successfully'))
+        return
+
+    count = 1
+    task_status = {i: 0 for i in r['tasks']}
+    while not all(s != 0 for s in task_status.values()):
+        click.echo('o' * count + '\r', nl=False)
+        for task_id, status in task_status.iteritems():
+            if status != 0:
+                continue
+            task = eru.get_task(task_id)
+            if 'r' in task:
+                task_status[task_id] = -1
+            if task['finished']:
+                task_status[task_id] = 1
+        time.sleep(0.5)
+        count += 1
+
+    fcount = len([s for s in task_status.values() if s == -1])
+    scount = len([s for s in task_status.values() if s == 1])
+    click.echo(info('Done.' + count * ' '))
+    click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
 @click.argument('group')
 @click.argument('pod')
@@ -153,13 +173,33 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, versio
 
     if not version:
         version = ctx.obj['short_sha1']
+
     r = eru.deploy_public(group, pod, ctx.obj['appname'],
             ncontainer, version, entrypoint, env, network_ids)
+
     if r['r']:
         click.echo(error(r['msg']))
-    else:
-        # TODO get tasks id
-        click.echo(info('Deploy successfully'))
+        return
+
+    count = 1
+    task_status = {i: 0 for i in r['tasks']}
+    while not all(s != 0 for s in task_status.values()):
+        click.echo('o' * count + '\r', nl=False)
+        for task_id, status in task_status.iteritems():
+            if status != 0:
+                continue
+            task = eru.get_task(task_id)
+            if 'r' in task:
+                task_status[task_id] = -1
+            if task['finished']:
+                task_status[task_id] = 1
+        time.sleep(0.5)
+        count += 1
+
+    fcount = len([s for s in task_status.values() if s == -1])
+    scount = len([s for s in task_status.values() if s == 1])
+    click.echo(info('Done.' + count * ' '))
+    click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
 @click.argument('group')
 @click.argument('pod')
@@ -218,10 +258,30 @@ def container_log(ctx, container_id, stdout, stderr, tail):
 def remove_containers(ctx, container_ids):
     eru = ctx.obj['eru']
     r = eru.remove_containers(container_ids)
+
     if r['r']:
         click.echo(error(r['msg']))
-    else:
-        click.echo(info('Remove successfully'))
+        return
+
+    count = 1
+    task_status = {i: 0 for i in r['tasks']}
+    while not all(s != 0 for s in task_status.values()):
+        click.echo('o' * count + '\r', nl=False)
+        for task_id, status in task_status.iteritems():
+            if status != 0:
+                continue
+            task = eru.get_task(task_id)
+            if 'r' in task:
+                task_status[task_id] = -1
+            if task['finished']:
+                task_status[task_id] = 1
+        time.sleep(0.5)
+        count += 1
+
+    fcount = len([s for s in task_status.values() if s == -1])
+    scount = len([s for s in task_status.values() if s == 1])
+    click.echo(info('Done.' + count * ' '))
+    click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
 @click.argument('group')
 @click.argument('pod')
@@ -232,24 +292,27 @@ def offline_version(ctx, group, pod, version):
     if not version:
         version = ctx.obj['short_sha1']
     r = eru.offline_version(group, pod, ctx.obj['appname'], version)
+
     if r['r']:
         click.echo(error(r['msg']))
-    else:
-        # TODO get tasks id
-        click.echo(info('Offline successfully'))
+        return
 
-@click.argument('group')
-@click.argument('pod')
-@click.option('--version', '-v', default=None, help='version to deploy')
-@click.pass_context
-def update_version(ctx, group, pod, version):
-    eru = ctx.obj['eru']
-    if not version:
-        version = ctx.obj['short_sha1']
-    r = eru.update_version(group, pod, ctx.obj['appname'], version)
-    if r['r']:
-        click.echo(error(r['msg']))
-    else:
-        # TODO get tasks id
-        click.echo(info('Update successfully'))
+    count = 1
+    task_status = {i: 0 for i in r['tasks']}
+    while not all(s != 0 for s in task_status.values()):
+        click.echo('o' * count + '\r', nl=False)
+        for task_id, status in task_status.iteritems():
+            if status != 0:
+                continue
+            task = eru.get_task(task_id)
+            if 'r' in task:
+                task_status[task_id] = -1
+            if task['finished']:
+                task_status[task_id] = 1
+        time.sleep(0.5)
+        count += 1
 
+    fcount = len([s for s in task_status.values() if s == -1])
+    scount = len([s for s in task_status.values() if s == 1])
+    click.echo(info('Done.' + count * ' '))
+    click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
