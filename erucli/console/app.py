@@ -110,9 +110,11 @@ def alloc_resource(ctx, env, res_name, name):
 @click.option('--version', '-v', default=None, help='version to deploy')
 @click.option('--network', '-i', help='version to deploy', multiple=True)
 @click.option('--host', '-h', help='specific host name', default=None, type=str)
+@click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
+@click.option('--image', '-m', help='specific image', default='', type=str)
 @click.pass_context
 def deploy_private_container(ctx, group, pod, entrypoint,
-        env, ncore, ncontainer, version, network, host):
+        env, ncore, ncontainer, version, network, host, raw, image):
     eru = ctx.obj['eru']
 
     network_ids = []
@@ -126,7 +128,8 @@ def deploy_private_container(ctx, group, pod, entrypoint,
     if not version:
         version = ctx.obj['short_sha1']
     r = eru.deploy_private(group, pod, ctx.obj['appname'], ncore,
-            ncontainer, version, entrypoint, env, network_ids, host)
+            ncontainer, version, entrypoint, env, network_ids,
+            host, raw, image)
 
     if r['r']:
         click.echo(error(r['msg']))
@@ -165,8 +168,11 @@ def deploy_private_container(ctx, group, pod, entrypoint,
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
 @click.option('--network', '-i', help='version to deploy', multiple=True)
+@click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
+@click.option('--image', '-m', help='specific image', default='', type=str)
 @click.pass_context
-def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, version, network):
+def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
+        version, network, raw, image):
     eru = ctx.obj['eru']
 
     network_ids = []
@@ -181,7 +187,7 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer, versio
         version = ctx.obj['short_sha1']
 
     r = eru.deploy_public(group, pod, ctx.obj['appname'],
-            ncontainer, version, entrypoint, env, network_ids)
+            ncontainer, version, entrypoint, env, network_ids, raw, image)
 
     if r['r']:
         click.echo(error(r['msg']))
