@@ -9,10 +9,11 @@ from erucli.console.style import error, info
 from erucli.console.output import as_form
 
 @click.pass_context
-def register_app_version(ctx):
+@click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
+def register_app_version(ctx, raw):
     eru = ctx.obj['eru']
     r = eru.register_app_version(ctx.obj['appname'], ctx.obj['sha1'],
-            ctx.obj['remote'], ctx.obj['appname'], ctx.obj['appconfig'])
+            ctx.obj['remote'], ctx.obj['appname'], ctx.obj['appconfig'], raw)
     if r['r']:
         click.echo(error(r['msg']))
     else:
