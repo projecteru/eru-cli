@@ -13,7 +13,6 @@ from erucli.console.app import (
     remove_containers,
     offline_version,
     container_log,
-    alloc_resource,
 )
 from erucli.console.entity import (
     create_group,
@@ -35,7 +34,6 @@ commands = {
     'app:listcontainer': list_app_containers,
     'app:rmcontainer': remove_containers,
     'app:offline': offline_version,
-    'app:allocresource': alloc_resource,
 
     'group:create': create_group,
     'pod:create':create_pod,

@@ -4,6 +4,7 @@ import time
 import click
 import humanize
 from datetime import datetime
+from eruhttp import EruException
 
 from erucli.console.style import error, info
 from erucli.console.output import as_form
@@ -12,12 +13,18 @@ from erucli.console.output import as_form
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
 def register_app_version(ctx, raw):
     eru = ctx.obj['eru']
-    r = eru.register_app_version(ctx.obj['appname'], ctx.obj['sha1'],
-            ctx.obj['remote'], ctx.obj['appname'], ctx.obj['appconfig'], raw)
-    if r['r']:
-        click.echo(error(r['msg']))
-    else:
+    try:
+        eru.register_app_version(
+            ctx.obj['appname'],
+            ctx.obj['sha1'],
+            ctx.obj['remote'],
+            ctx.obj['appname'],
+            ctx.obj['appconfig'],
+            raw
+        )
         click.echo(info('Register successfully'))
+    except EruException as e:
+        click.echo(error(e.message))
 
 @click.argument('env')
 @click.argument('vs', nargs=-1)
@@ -31,19 +38,20 @@ def set_app_env(ctx, env, vs):
         key, value = v.split('=', 1)
         kv[key] = value
     eru = ctx.obj['eru']
-    r = eru.set_app_env(ctx.obj['appname'], env, **kv)
-    if r['r']:
-        click.echo(error(r['msg']))
-    else:
+    try:
+        eru.set_app_env(ctx.obj['appname'], env, **kv)
         click.echo(info('env variables set successfully'))
+    except EruException as e:
+        click.echo(error(e.message))
 
 @click.argument('env')
 @click.pass_context
 def list_app_env_content(ctx, env):
     eru = ctx.obj['eru']
-    r = eru.list_app_env_content(ctx.obj['appname'], env)
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.list_app_env_content(ctx.obj['appname'], env)
+    except EruException as e:
+        click.echo(error(e.message))
     else:
         title = ['Key', 'Value']
         data = r['data']
@@ -54,9 +62,10 @@ def list_app_env_content(ctx, env):
 def list_app_containers(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
-    r = eru.list_app_containers(name)
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.list_app_containers(name)
+    except EruException as e:
+        click.echo(error(e.message))
     else:
         title = ['Name', 'Time', 'Entry', 'Version', 'Alive', 'Host', 'Backends', 'ID']
         content = [
@@ -69,38 +78,22 @@ def list_app_containers(ctx):
                 c['host'],
                 ','.join(n['address'] for n in c['networks']) or '-',
                 c['container_id'][:7]
-            ] for c in r['containers']]
+            ] for c in r['containers']
+        ]
         as_form(title, content)
 
 @click.pass_context
 def list_app_env_names(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
-    r = eru.list_app_env_names(name)
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.list_app_env_names(name)
+    except EruException as e:
+        click.echo(error(e.message))
     else:
         title = ['Env', ]
         content = [[e, ] for e in r['data']]
         as_form(title, content)
-
-@click.argument('env')
-@click.argument('res_name')
-@click.option('--name', '-n', default='')
-@click.pass_context
-def alloc_resource(ctx, env, res_name, name):
-    if name == '':
-        name = res_name
-    if res_name not in ('influxdb', 'mysql'):
-        click.echo(error('Res name must be influxdb/mysql'))
-        ctx.exit(-1)
-    eru = ctx.obj['eru']
-    r = eru.alloc_resource(ctx.obj['appname'], env, res_name, name)
-    if r['r']:
-        click.echo(error(r['msg']))
-    else:
-        # TODO get tasks id
-        click.echo(info('Alloc successfully'))
 
 @click.argument('group')
 @click.argument('pod')
@@ -121,20 +114,34 @@ def deploy_private_container(ctx, group, pod, entrypoint,
 
     network_ids = []
     for nname in network:
-        n = eru.get_network(nname)
-        if 'r' in n and n['r'] == 1:
-            click.echo(error(n['msg']))
+        try:
+            n = eru.get_network(nname)
+        except EruException as e:
+            click.echo(error(e.message))
             ctx.exit(-1)
-        network_ids.append(n['id'])
+        else:
+            network_ids.append(n['id'])
 
     if not version:
         version = ctx.obj['short_sha1']
-    r = eru.deploy_private(group, pod, ctx.obj['appname'], ncore,
-            ncontainer, version, entrypoint, env, network_ids,
-            host, raw, image, ip)
-
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.deploy_private(
+            group,
+            pod,
+            ctx.obj['appname'],
+            ncore,
+            ncontainer,
+            version,
+            entrypoint,
+            env,
+            network_ids,
+            host,
+            raw,
+            image,
+            ip
+        )
+    except EruException as e:
+        click.echo(error(e.message))
         return
 
     count = 1
@@ -150,11 +157,12 @@ def deploy_private_container(ctx, group, pod, entrypoint,
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
-            task = eru.get_task(task_id)
-            if 'r' in task:
+            try:
+                task = eru.get_task(task_id)
+                if task['finished']:
+                    task_status[task_id] = 1
+            except EruException:
                 task_status[task_id] = -1
-            if task['finished']:
-                task_status[task_id] = 1
         time.sleep(0.5)
         count += 1
 
@@ -180,20 +188,33 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
 
     network_ids = []
     for nname in network:
-        n = eru.get_network(nname)
-        if 'r' in n and n['r'] == 1:
-            click.echo(error(n['msg']))
+        try:
+            n = eru.get_network(nname)
+        except EruException as e:
+            click.echo(error(e.message))
             ctx.exit(-1)
-        network_ids.append(n['id'])
+        else:
+            network_ids.append(n['id'])
 
     if not version:
         version = ctx.obj['short_sha1']
 
-    r = eru.deploy_public(group, pod, ctx.obj['appname'],
-            ncontainer, version, entrypoint, env, network_ids, raw, image, ip)
-
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.deploy_public(
+            group,
+            pod,
+            ctx.obj['appname'],
+            ncontainer,
+            version,
+            entrypoint,
+            env,
+            network_ids,
+            raw,
+            image,
+            ip
+        )
+    except EruException as e:
+        click.echo(error(e.message))
         return
 
     count = 1
@@ -208,11 +229,12 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
-            task = eru.get_task(task_id)
-            if 'r' in task:
+            try:
+                task = eru.get_task(task_id)
+                if task['finished']:
+                    task_status[task_id] = 1
+            except EruException:
                 task_status[task_id] = -1
-            if task['finished']:
-                task_status[task_id] = 1
         time.sleep(0.5)
         count += 1
 
@@ -230,9 +252,10 @@ def build_image(ctx, group, pod, base, version):
     eru = ctx.obj['eru']
     if not version:
         version = ctx.obj['short_sha1']
-    r = eru.build_image(group, pod, ctx.obj['appname'], base, version)
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.build_image(group, pod, ctx.obj['appname'], base, version)
+    except EruException as e:
+        click.echo(error(e.message))
     else:
         for d in eru.build_log(r['task']):
             if 'stream' in d:
@@ -277,10 +300,10 @@ def container_log(ctx, container_id, stdout, stderr, tail):
 @click.pass_context
 def remove_containers(ctx, container_ids):
     eru = ctx.obj['eru']
-    r = eru.remove_containers(container_ids)
-
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.remove_containers(container_ids)
+    except EruException as e:
+        click.echo(error(e.message))
         return
 
     count = 1
@@ -295,11 +318,12 @@ def remove_containers(ctx, container_ids):
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
-            task = eru.get_task(task_id)
-            if 'r' in task:
+            try:
+                task = eru.get_task(task_id)
+                if task['finished']:
+                    task_status[task_id] = 1
+            except EruException:
                 task_status[task_id] = -1
-            if task['finished']:
-                task_status[task_id] = 1
         time.sleep(0.5)
         count += 1
 
@@ -316,10 +340,10 @@ def offline_version(ctx, group, pod, version):
     eru = ctx.obj['eru']
     if not version:
         version = ctx.obj['short_sha1']
-    r = eru.offline_version(group, pod, ctx.obj['appname'], version)
-
-    if r['r']:
-        click.echo(error(r['msg']))
+    try:
+        r = eru.offline_version(group, pod, ctx.obj['appname'], version)
+    except EruException as e:
+        click.echo(error(e.message))
         return
 
     count = 1
@@ -334,11 +358,12 @@ def offline_version(ctx, group, pod, version):
         for task_id, status in task_status.iteritems():
             if status != 0:
                 continue
-            task = eru.get_task(task_id)
-            if 'r' in task:
+            try:
+                task = eru.get_task(task_id)
+                if task['finished']:
+                    task_status[task_id] = 1
+            except EruException:
                 task_status[task_id] = -1
-            if task['finished']:
-                task_status[task_id] = 1
         time.sleep(0.5)
         count += 1
 
