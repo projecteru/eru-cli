@@ -29,8 +29,9 @@ def eru_commands(ctx):
         ctx.obj['appname'] = appconfig['appname']
 
     repo = pygit2.Repository('.')
-    ctx.obj['sha1'] = repo.head.target.hex
-    ctx.obj['short_sha1'] = appconfig.get('version', '') or ctx.obj['sha1'][:7]
+    # 有时候app.yaml里会写version的, 就以他为主了
+    ctx.obj['sha1'] = appconfig.get('version', '') or repo.head.target.hex
+    ctx.obj['short_sha1'] = appconfig.get('version', '')[:7] or ctx.obj['sha1'][:7]
 
     remote = ''
     for r in repo.remotes:
