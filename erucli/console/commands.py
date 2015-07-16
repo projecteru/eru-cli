@@ -5,6 +5,7 @@ from erucli.console.app import (
     set_app_env,
     list_app_env_content,
     list_app_containers,
+    list_app_versions,
     list_app_env_names,
     deploy_private_container,
     deploy_public_container,
@@ -32,6 +33,7 @@ commands = {
     'app:dpub': deploy_public_container,
     'app:build': build_image,
     'app:listcontainer': list_app_containers,
+    'app:listversion': list_app_versions,
     'app:rmcontainer': remove_containers,
     'app:offline': offline_version,
 

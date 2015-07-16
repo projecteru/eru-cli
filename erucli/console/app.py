@@ -83,6 +83,24 @@ def list_app_containers(ctx):
         as_form(title, content)
 
 @click.pass_context
+def list_app_versions(ctx):
+    eru = ctx.obj['eru']
+    name = ctx.obj['appname']
+    try:
+        r = eru.list_app_versions(name)
+    except EruException as e:
+        click.echo(error(e.message))
+    else:
+        title = ['Time', 'Version']
+        content = [
+            [
+                humanize.naturaltime(datetime.strptime(c['created'], '%Y-%m-%d %H:%M:%S')),
+                c['sha'][:7],
+            ] for c in r['versions']
+        ]
+        as_form(title, content)
+
+@click.pass_context
 def list_app_env_names(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
