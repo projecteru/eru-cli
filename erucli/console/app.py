@@ -83,6 +83,24 @@ def list_app_containers(ctx):
         as_form(title, content)
 
 @click.pass_context
+def list_app_versions(ctx):
+    eru = ctx.obj['eru']
+    name = ctx.obj['appname']
+    try:
+        r = eru.list_app_versions(name)
+    except EruException as e:
+        click.echo(error(e.message))
+    else:
+        title = ['Time', 'Version']
+        content = [
+            [
+                humanize.naturaltime(datetime.strptime(c['created'], '%Y-%m-%d %H:%M:%S')),
+                c['sha'][:7],
+            ] for c in r['versions']
+        ]
+        as_form(title, content)
+
+@click.pass_context
 def list_app_env_names(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
@@ -107,9 +125,11 @@ def list_app_env_names(ctx):
 @click.option('--ip', '-p', help='specific ip', multiple=True)
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
 @click.option('--image', '-m', help='specific image', default='', type=str)
+@click.option('--args', '-a', help='extend arguments', default='', type=str)
 @click.pass_context
 def deploy_private_container(ctx, group, pod, entrypoint,
-        env, ncore, ncontainer, version, network, host, ip, raw, image):
+        env, ncore, ncontainer, version, network, host, ip, raw, image, args):
+    args = args.split(' ')
     eru = ctx.obj['eru']
 
     network_ids = []
@@ -139,7 +159,8 @@ def deploy_private_container(ctx, group, pod, entrypoint,
             host,
             raw,
             image,
-            ip
+            ip,
+            args,
         )
     except EruException as e:
         click.echo(error(e.message))
@@ -182,9 +203,11 @@ def deploy_private_container(ctx, group, pod, entrypoint,
 @click.option('--ip', '-p', help='specific ip', multiple=True)
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
 @click.option('--image', '-m', help='specific image', default='', type=str)
+@click.option('--args', '-a', help='extend arguments', default='', type=str)
 @click.pass_context
 def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
-        version, network, ip, raw, image):
+        version, network, ip, raw, image, args):
+    args = args.split(' ')
     eru = ctx.obj['eru']
 
     network_ids = []
@@ -213,7 +236,8 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
             None,
             raw,
             image,
-            ip
+            ip,
+            args,
         )
     except EruException as e:
         click.echo(error(e.message))
