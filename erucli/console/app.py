@@ -405,13 +405,17 @@ def offline_version(ctx, group, pod, version):
 def bind_container_network(ctx, appname, container_id, network):
     if not network:
         click.echo(error('at least bind 1 network'))
-        ctx.exit(-1)
+        return
 
     eru = ctx.obj['eru']
     try:
         r = eru.bind_container_network(appname, container_id, network)
     except EruException as e:
         click.echo(error(e.message))
+        return
+
+    if r['r']:
+        click.echo(error(r['msg']))
         return
 
     rs = ','.join(ip['address'] for ip in r['msg'])
