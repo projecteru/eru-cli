@@ -14,6 +14,7 @@ from erucli.console.app import (
     remove_containers,
     offline_version,
     container_log,
+    bind_container_network,
 )
 from erucli.console.entity import (
     create_group,
@@ -47,5 +48,6 @@ commands = {
     'log:container': container_log,
 
     'net:create': create_network,
+    'net:bind': bind_container_network,
 }
 

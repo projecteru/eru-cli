@@ -397,3 +397,23 @@ def offline_version(ctx, group, pod, version):
     scount = len([s for s in task_status.values() if s == 1])
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
+
+@click.argument('appname')
+@click.argument('container_id')
+@click.option('--network', '-i', help='version to deploy', multiple=True)
+@click.pass_context
+def bind_container_network(ctx, appname, container_id, network):
+    if not network:
+        click.echo(error('at least bind 1 network'))
+        ctx.exit(-1)
+
+    eru = ctx.obj['eru']
+    try:
+        r = eru.bind_container_network(appname, container_id, network)
+    except EruException as e:
+        click.echo(error(e.message))
+        return
+
+    rs = ','.join(ip['address'] for ip in r['msg'])
+    click.echo(info('Done.'))
+    click.echo(info('%s bound' % rs))
