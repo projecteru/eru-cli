@@ -15,7 +15,6 @@ def register_app_version(ctx, raw):
     eru = ctx.obj['eru']
     try:
         eru.register_app_version(
-            ctx.obj['appname'],
             ctx.obj['sha1'],
             ctx.obj['remote'],
             ctx.obj['appname'],
