@@ -45,6 +45,16 @@ def set_app_env(ctx, env, vs):
 
 @click.argument('env')
 @click.pass_context
+def delete_app_env(ctx, env):
+    eru = ctx.obj['eru']
+    try:
+        eru.delete_app_env(ctx.obj['appname'], env)
+        click.echo(info('env variables remove successfully'))
+    except EruException as e:
+        click.echo(error(e.message))
+
+@click.argument('env')
+@click.pass_context
 def list_app_env_content(ctx, env):
     eru = ctx.obj['eru']
     try:

@@ -3,6 +3,7 @@
 from erucli.console.app import (
     register_app_version,
     set_app_env,
+    delete_app_env,
     list_app_env_content,
     list_app_containers,
     list_app_versions,
@@ -29,6 +30,7 @@ commands = {
     'app:register': register_app_version,
     'app:setenv': set_app_env,
     'app:getenv': list_app_env_content,
+    'app:delenv': delete_app_env,
     'app:listenv': list_app_env_names,
     'app:dpri': deploy_private_container,
     'app:dpub': deploy_public_container,
