@@ -426,6 +426,6 @@ def bind_container_network(ctx, container_id, network):
         click.echo(error(r['msg']))
         return
 
-    rs = ','.join(ip['address'] for ip in r['msg'])
+    rs = ','.join(r['msg'])
     click.echo(info('Done.'))
     click.echo(info('%s bound' % rs))
