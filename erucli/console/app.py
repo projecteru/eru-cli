@@ -140,16 +140,6 @@ def deploy_private_container(ctx, pod, entrypoint,
     args = args.split(' ')
     eru = ctx.obj['eru']
 
-    network_ids = []
-    for nname in network:
-        try:
-            n = eru.get_network(nname)
-        except EruException as e:
-            click.echo(error(e.message))
-            ctx.exit(-1)
-        else:
-            network_ids.append(n['id'])
-
     if not version:
         version = ctx.obj['short_sha1']
     try:
@@ -161,7 +151,7 @@ def deploy_private_container(ctx, pod, entrypoint,
             version,
             entrypoint,
             env,
-            network_ids,
+            network,
             None,
             host,
             raw,
@@ -216,16 +206,6 @@ def deploy_public_container(ctx, pod, entrypoint, env, ncontainer,
     args = args.split(' ')
     eru = ctx.obj['eru']
 
-    network_ids = []
-    for nname in network:
-        try:
-            n = eru.get_network(nname)
-        except EruException as e:
-            click.echo(error(e.message))
-            ctx.exit(-1)
-        else:
-            network_ids.append(n['id'])
-
     if not version:
         version = ctx.obj['short_sha1']
 
@@ -237,7 +217,7 @@ def deploy_public_container(ctx, pod, entrypoint, env, ncontainer,
             version,
             entrypoint,
             env,
-            network_ids,
+            network,
             None,
             raw,
             image,
