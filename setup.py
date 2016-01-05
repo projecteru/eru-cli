@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='erucli',
-    version='0.1.25',
+    version='0.1.26',
     author='tonic',
     zip_safe=False,
     author_email='tonic@wolege.ca',
