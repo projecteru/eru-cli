@@ -37,6 +37,7 @@ def make_absolute_path(domain_name_or_url):
     return p.geturl()
 
 
+
 @click.group()
 @click.pass_context
 def eru_commands(ctx):
@@ -66,6 +67,7 @@ def eru_commands(ctx):
 
     eru_absolute_path = make_absolute_path(eru_url)
     ctx.obj['eru'] = EruClient(eru_absolute_path)
+
 
 for command, function in commands.iteritems():
     eru_commands.command(command)(function)

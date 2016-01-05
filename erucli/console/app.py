@@ -9,8 +9,9 @@ from eruhttp import EruException
 from erucli.console.style import error, info
 from erucli.console.output import as_form
 
-@click.pass_context
+
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
+@click.pass_context
 def register_app_version(ctx, raw):
     eru = ctx.obj['eru']
     try:
@@ -24,6 +25,7 @@ def register_app_version(ctx, raw):
         click.echo(info('Register successfully'))
     except EruException as e:
         click.echo(error(e.message))
+
 
 @click.argument('env')
 @click.argument('vs', nargs=-1)
@@ -43,6 +45,7 @@ def set_app_env(ctx, env, vs):
     except EruException as e:
         click.echo(error(e.message))
 
+
 @click.argument('env')
 @click.pass_context
 def delete_app_env(ctx, env):
@@ -53,26 +56,27 @@ def delete_app_env(ctx, env):
     except EruException as e:
         click.echo(error(e.message))
 
+
 @click.argument('env')
 @click.pass_context
 def list_app_env_content(ctx, env):
     eru = ctx.obj['eru']
     try:
-        r = eru.list_app_env_content(ctx.obj['appname'], env)
+        data = eru.list_app_env_content(ctx.obj['appname'], env)
     except EruException as e:
         click.echo(error(e.message))
     else:
         title = ['Key', 'Value']
-        data = r['data']
         content = [(key, data.get(key, '')) for key in sorted(data.keys())]
         as_form(title, content)
+
 
 @click.pass_context
 def list_app_containers(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
     try:
-        r = eru.list_app_containers(name)
+        containers = eru.list_app_containers(name)
     except EruException as e:
         click.echo(error(e.message))
     else:
@@ -87,16 +91,17 @@ def list_app_containers(ctx):
                 c['host'],
                 ','.join(n['address'] for n in c['networks']) or '-',
                 c['container_id'][:7]
-            ] for c in r['containers']
+            ] for c in containers
         ]
         as_form(title, content)
+
 
 @click.pass_context
 def list_app_versions(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
     try:
-        r = eru.list_app_versions(name)
+        versions = eru.list_app_versions(name)
     except EruException as e:
         click.echo(error(e.message))
     else:
@@ -105,22 +110,24 @@ def list_app_versions(ctx):
             [
                 humanize.naturaltime(datetime.strptime(c['created'], '%Y-%m-%d %H:%M:%S')),
                 c['sha'][:7],
-            ] for c in r['versions']
+            ] for c in versions
         ]
         as_form(title, content)
+
 
 @click.pass_context
 def list_app_env_names(ctx):
     eru = ctx.obj['eru']
     name = ctx.obj['appname']
     try:
-        r = eru.list_app_env_names(name)
+        envs = eru.list_app_env_names(name)
     except EruException as e:
         click.echo(error(e.message))
     else:
         title = ['Env', ]
-        content = [[e, ] for e in r['data']]
+        content = [[e, ] for e in envs]
         as_form(title, content)
+
 
 @click.argument('pod')
 @click.argument('entrypoint')
@@ -190,6 +197,7 @@ def deploy_private_container(ctx, pod, entrypoint,
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
+
 @click.argument('pod')
 @click.argument('entrypoint')
 @click.option('--env', '-e', default='prod', help='run env')
@@ -254,6 +262,7 @@ def deploy_public_container(ctx, pod, entrypoint, env, ncontainer,
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
+
 @click.argument('pod')
 @click.argument('base')
 @click.option('--version', '-v', default=None, help='version to deploy')
@@ -278,6 +287,7 @@ def build_image(ctx, pod, base, version):
                 else:
                     click.echo(status)
 
+
 @click.argument('task')
 @click.pass_context
 def build_log(ctx, task):
@@ -293,6 +303,7 @@ def build_log(ctx, task):
             else:
                 click.echo(status)
 
+
 @click.argument('container_id')
 @click.option('--stdout', '-o', is_flag=True)
 @click.option('--stderr', '-e', is_flag=True)
@@ -305,6 +316,7 @@ def container_log(ctx, container_id, stdout, stderr, tail):
         ctx.exit(-1)
     for line in eru.container_log(container_id, int(stdout), int(stderr), tail):
         click.echo(line, nl=False)
+
 
 @click.argument('container_ids', nargs=-1)
 @click.pass_context
@@ -341,6 +353,7 @@ def remove_containers(ctx, container_ids):
     scount = len([s for s in task_status.values() if s == 1])
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
+
 
 @click.argument('pod')
 @click.option('--version', '-v', default=None, help='version to deploy')
@@ -381,6 +394,7 @@ def offline_version(ctx, pod, version):
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
+
 @click.argument('container_id')
 @click.option('--network', '-i', help='version to deploy', multiple=True)
 @click.pass_context
@@ -396,10 +410,6 @@ def bind_container_network(ctx, container_id, network):
         click.echo(error(e.message))
         return
 
-    if r['r']:
-        click.echo(error(r['msg']))
-        return
-
-    rs = ','.join(r['msg'])
+    rs = ','.join(r['cidrs'])
     click.echo(info('Done.'))
     click.echo(info('%s bound' % rs))

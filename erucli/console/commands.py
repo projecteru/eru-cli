@@ -23,6 +23,7 @@ from erucli.console.entity import (
     create_host,
 )
 
+
 commands = {
     'app:register': register_app_version,
     'app:setenv': set_app_env,
@@ -46,4 +47,3 @@ commands = {
     'net:create': create_network,
     'net:bind': bind_container_network,
 }
-

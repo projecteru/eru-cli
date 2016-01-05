@@ -5,6 +5,7 @@ from eruhttp import EruException
 
 from erucli.console.style import error, info
 
+
 @click.argument('name')
 @click.argument('description', default='')
 @click.pass_context
@@ -16,16 +17,18 @@ def create_pod(ctx, name, description):
     except EruException as e:
         click.echo(error(e.message))
 
+
 @click.argument('name')
-@click.argument('netspace')
+@click.argument('cidr')
 @click.pass_context
-def create_network(ctx, name, netspace):
+def create_network(ctx, name, cidr):
     eru = ctx.obj['eru']
     try:
-        eru.create_network(name, netspace)
+        eru.create_network(name, cidr)
         click.echo(info('Network created successfully'))
     except EruException as e:
         click.echo(error(e.message))
+
 
 @click.argument('addr')
 @click.argument('pod_name')
@@ -37,4 +40,3 @@ def create_host(ctx, addr, pod_name):
         click.echo(info('Host created successfully'))
     except EruException as e:
         click.echo(error(e.message))
-
