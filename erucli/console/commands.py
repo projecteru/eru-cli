@@ -16,11 +16,16 @@ from erucli.console.app import (
     offline_version,
     container_log,
     bind_container_network,
+    bind_container_eip,
+    release_container_eip,
 )
 from erucli.console.entity import (
     create_pod,
     create_network,
     create_host,
+    host_bind_eip,
+    host_release_eip,
+    host_get_eip,
 )
 
 
@@ -40,10 +45,15 @@ commands = {
 
     'pod:create':create_pod,
     'host:create': create_host,
+    'host:bind-eip': host_bind_eip,
+    'host:release-eip': host_release_eip,
+    'host:get-eip': host_get_eip,
 
     'log:task': build_log,
     'log:container': container_log,
 
     'net:create': create_network,
     'net:bind': bind_container_network,
+    'net:bind-eip': bind_container_eip,
+    'net:release-eip': release_container_eip,
 }

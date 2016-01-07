@@ -88,9 +88,9 @@ def list_app_containers(ctx):
                 c['entrypoint'],
                 c['version'],
                 'yes' if c['is_alive'] else 'no', 
-                c['host'],
+                '%s / %s' % (c['host'], c['hostname']),
                 ','.join(n['address'] for n in c['networks']) or '-',
-                c['container_id'][:7]
+                str(c['container_id'][:7])
             ] for c in containers
         ]
         as_form(title, content)
@@ -413,3 +413,31 @@ def bind_container_network(ctx, container_id, network):
     rs = ','.join(r['cidrs'])
     click.echo(info('Done.'))
     click.echo(info('%s bound' % rs))
+
+
+@click.argument('container_id')
+@click.argument('eip')
+@click.pass_context
+def bind_container_eip(ctx, container_id, eip):
+    eru = ctx.obj['eru']
+    try:
+        eru.bind_container_eip(container_id, eip)
+    except EruException as e:
+        click.echo(error(e.message))
+        return
+
+    click.echo(info('%s bound' % eip))
+
+
+@click.argument('container_id')
+@click.argument('eip')
+@click.pass_context
+def release_container_eip(ctx, container_id, eip):
+    eru = ctx.obj['eru']
+    try:
+        eru.release_container_eip(container_id, eip)
+    except EruException as e:
+        click.echo(error(e.message))
+        return
+
+    click.echo(info('%s released' % eip))
