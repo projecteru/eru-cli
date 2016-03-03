@@ -122,7 +122,6 @@ def list_app_env_names(ctx):
         content = [[e, ] for e in r['data']]
         as_form(title, content)
 
-@click.argument('group')
 @click.argument('pod')
 @click.argument('entrypoint')
 @click.option('--env', '-e', default='prod', help='run env')
@@ -136,7 +135,7 @@ def list_app_env_names(ctx):
 @click.option('--image', '-m', help='specific image', default='', type=str)
 @click.option('--args', '-a', help='extend arguments', default='', type=str)
 @click.pass_context
-def deploy_private_container(ctx, group, pod, entrypoint,
+def deploy_private_container(ctx, pod, entrypoint,
         env, ncore, ncontainer, version, network, host, ip, raw, image, args):
     args = args.split(' ')
     eru = ctx.obj['eru']
@@ -155,7 +154,6 @@ def deploy_private_container(ctx, group, pod, entrypoint,
         version = ctx.obj['short_sha1']
     try:
         r = eru.deploy_private(
-            group,
             pod,
             ctx.obj['appname'],
             ncore,
@@ -202,7 +200,6 @@ def deploy_private_container(ctx, group, pod, entrypoint,
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
-@click.argument('group')
 @click.argument('pod')
 @click.argument('entrypoint')
 @click.option('--env', '-e', default='prod', help='run env')
@@ -214,7 +211,7 @@ def deploy_private_container(ctx, group, pod, entrypoint,
 @click.option('--image', '-m', help='specific image', default='', type=str)
 @click.option('--args', '-a', help='extend arguments', default='', type=str)
 @click.pass_context
-def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
+def deploy_public_container(ctx, pod, entrypoint, env, ncontainer,
         version, network, ip, raw, image, args):
     args = args.split(' ')
     eru = ctx.obj['eru']
@@ -234,7 +231,6 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
 
     try:
         r = eru.deploy_public(
-            group,
             pod,
             ctx.obj['appname'],
             ncontainer,
@@ -278,17 +274,16 @@ def deploy_public_container(ctx, group, pod, entrypoint, env, ncontainer,
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
-@click.argument('group')
 @click.argument('pod')
 @click.argument('base')
 @click.option('--version', '-v', default=None, help='version to deploy')
 @click.pass_context
-def build_image(ctx, group, pod, base, version):
+def build_image(ctx, pod, base, version):
     eru = ctx.obj['eru']
     if not version:
         version = ctx.obj['short_sha1']
     try:
-        r = eru.build_image(group, pod, ctx.obj['appname'], base, version)
+        r = eru.build_image(pod, ctx.obj['appname'], base, version)
     except EruException as e:
         click.echo(error(e.message))
     else:
@@ -367,16 +362,15 @@ def remove_containers(ctx, container_ids):
     click.echo(info('Done.' + count * ' '))
     click.echo(info('%s failed, %s succeeded.' % (fcount, scount)))
 
-@click.argument('group')
 @click.argument('pod')
 @click.option('--version', '-v', default=None, help='version to deploy')
 @click.pass_context
-def offline_version(ctx, group, pod, version):
+def offline_version(ctx, pod, version):
     eru = ctx.obj['eru']
     if not version:
         version = ctx.obj['short_sha1']
     try:
-        r = eru.offline_version(group, pod, ctx.obj['appname'], version)
+        r = eru.offline_version(pod, ctx.obj['appname'], version)
     except EruException as e:
         click.echo(error(e.message))
         return
