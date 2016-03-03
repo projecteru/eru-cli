@@ -1,13 +1,41 @@
 # coding: utf-8
-
 import os
-import click
-import yaml
-import pygit2
+import urlparse
 
+import click
+import pygit2
+import yaml
 from eruhttp import EruClient
-from erucli.console.style import error
+
 from erucli.console.commands import commands
+from erucli.console.style import error
+
+
+def create_http_git_clone_url(clone_url):
+    """
+    >>> create_http_git_clone_url('git@github.com:projecteru/eru-cli.git')
+    'http://github.com/projecteru/eru-cli.git'
+    """
+    if clone_url.startswith('http'):
+        return clone_url
+    # assume clone_url is like 'git@xxx.com:username/repo-name.git
+    _, path = clone_url.split('@', 1)
+    http_clone_url = 'http://' + path.replace(':', '/')
+    return http_clone_url
+
+
+def make_absolute_path(domain_name_or_url):
+    """
+    >>> make_absolute_path('127.0.0.1')
+    'http://127.0.0.1'
+    >>> make_absolute_path('http://127.0.0.1:10086/')
+    'http://127.0.0.1:10086'
+    """
+    p = urlparse.urlparse(domain_name_or_url, 'http')
+    netloc = p.netloc or p.path
+    p = urlparse.ParseResult('http', netloc, '', *p[3:])
+    return p.geturl()
+
 
 @click.group()
 @click.pass_context
@@ -33,21 +61,15 @@ def eru_commands(ctx):
     ctx.obj['sha1'] = appconfig.get('version', '') or repo.head.target.hex
     ctx.obj['short_sha1'] = appconfig.get('version', '')[:7] or ctx.obj['sha1'][:7]
 
-    remote = ''
-    for r in repo.remotes:
-        if r.name == 'origin':
-            remote = r.url
-            if not remote.startswith('http'):
-                _, path = remote.split('@', 1)
-                # 太丢人了...
-                remote = 'http://' + path.replace(':', '/')
-    ctx.obj['remote'] = remote
+    origin_remote_url = next(r.url for r in repo.remotes if r.name == 'origin')
+    ctx.obj['remote']  = create_http_git_clone_url(origin_remote_url)
 
-    ctx.obj['eru'] = EruClient(eru_url)
+    eru_absolute_path = make_absolute_path(eru_url)
+    ctx.obj['eru'] = EruClient(eru_absolute_path)
 
 for command, function in commands.iteritems():
     eru_commands.command(command)(function)
 
+
 def main():
     eru_commands(obj={})
-
