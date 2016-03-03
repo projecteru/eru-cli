@@ -18,12 +18,9 @@ from erucli.console.app import (
     bind_container_network,
 )
 from erucli.console.entity import (
-    create_group,
     create_pod,
     create_network,
     create_host,
-    assign_pod_to_group,
-    assign_host_to_group,
 )
 
 commands = {
@@ -40,11 +37,8 @@ commands = {
     'app:rmcontainer': remove_containers,
     'app:offline': offline_version,
 
-    'group:create': create_group,
     'pod:create':create_pod,
-    'pod:assign': assign_pod_to_group,
     'host:create': create_host,
-    'host:assign': assign_host_to_group,
 
     'log:task': build_log,
     'log:container': container_log,
