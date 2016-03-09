@@ -5,6 +5,7 @@ from tabulate import tabulate
 
 from erucli.console.style import info
 
+
 def as_form(title, content):
     empty = not bool(content)
     if empty:
@@ -13,4 +14,3 @@ def as_form(title, content):
     click.echo(info(header + '-'))
     if not empty:
         click.echo(contents)
-
