@@ -35,14 +35,16 @@ def create_network(ctx, name, cidr):
 @click.argument('addr')
 @click.argument('pod_name')
 @click.option('--public/--private', default=False)
-@click.option('--docker-cert-path', default='')
+@click.option('--docker-cert-path', default='', help='upload cert files, same as DOCKER_CERT_PATH')
 @click.pass_context
 def create_host(ctx, addr, pod_name, public, docker_cert_path=''):
     eru = ctx.obj['eru']
     try:
         if docker_cert_path:
-            domain = addr.split(':')[0]
+            domain = addr.split(':', 1)[0]
             this_host_cert_path = os.path.join(docker_cert_path, domain)
+        else:
+            this_host_cert_path = None
 
         eru.create_host(addr, pod_name, docker_cert_path=this_host_cert_path, is_public=public)
         click.echo(info('Host {} assigned to {} successfully'.format(addr, pod_name)))
