@@ -11,12 +11,13 @@ from erucli.console.output import as_form
 
 
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
+@click.option('--version', '-v', help='version', default=None)
 @click.pass_context
-def register_app_version(ctx, raw):
+def register_app_version(ctx, raw, version):
     eru = ctx.obj['eru']
     try:
         eru.register_app_version(
-            ctx.obj['sha1'],
+            version or ctx.obj['sha1'],
             ctx.obj['remote'],
             ctx.obj['appname'],
             ctx.obj['appconfig'],
@@ -135,7 +136,7 @@ def list_app_env_names(ctx):
 @click.option('--ncore', '-c', default=1, help='how many cores per container', type=float)
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
-@click.option('--network', '-i', help='version to deploy', multiple=True)
+@click.option('--network', '-i', help='networks to bind', multiple=True)
 @click.option('--host', '-h', help='specific host name', default=None, type=str)
 @click.option('--ip', '-p', help='specific ip', multiple=True)
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
@@ -203,7 +204,7 @@ def deploy_private_container(ctx, pod, entrypoint,
 @click.option('--env', '-e', default='prod', help='run env')
 @click.option('--ncontainer', '-n', default=1, help='how many containers', type=int)
 @click.option('--version', '-v', default=None, help='version to deploy')
-@click.option('--network', '-i', help='version to deploy', multiple=True)
+@click.option('--network', '-i', help='networks to bind', multiple=True)
 @click.option('--ip', '-p', help='specific ip', multiple=True)
 @click.option('--raw', '-r', help='deploy a raw image', is_flag=True)
 @click.option('--image', '-m', help='specific image', default='', type=str)
