@@ -16,8 +16,12 @@ def create_http_git_clone_url(clone_url, scheme='http'):
     >>> create_http_git_clone_url('git@github.com:projecteru/eru-cli.git')
     'http://github.com/projecteru/eru-cli.git'
     """
+    if not clone_url:
+        return ''
+
     if clone_url.startswith('http'):
         return clone_url
+
     # assume clone_url is like 'git@xxx.com:username/repo-name.git
     _, path = clone_url.split('@', 1)
     http_clone_url = 'http://' + path.replace(':', '/')
@@ -76,7 +80,11 @@ def eru_commands(ctx, clone_url_type):
     ctx.obj['sha1'] = appconfig.get('version', '') or repo.head.target.hex
     ctx.obj['short_sha1'] = appconfig.get('version', '')[:7] or ctx.obj['sha1'][:7]
 
-    origin_remote_url = next(r.url for r in repo.remotes if r.name == 'origin')
+    try:
+        origin_remote_url = next(r.url for r in repo.remotes if r.name == 'origin')
+    except StopIteration:
+        origin_remote_url = ''
+
     if clone_url_type.startswith('http'):
         ctx.obj['remote']  = create_http_git_clone_url(origin_remote_url, clone_url_type)
     else:
