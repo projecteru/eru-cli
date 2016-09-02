@@ -21,7 +21,7 @@ setup(
         'click>=2.0',
         'requests>=2.2.1',
         'PyYAML',
-        'pygit2==0.23.3',
+        'pygit2',
         'websocket-client',
         'tabulate',
         'eru-py',
